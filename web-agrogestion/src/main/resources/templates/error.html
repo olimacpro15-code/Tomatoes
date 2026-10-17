@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Algo no salió como esperábamos | Tomatoes</title>
+    <th:block th:replace="~{fragments/componentes :: recursos}"></th:block>
+</head>
+<body>
+<main class="error-pagina">
+    <div>
+        <img th:src="@{/img/brote.svg}" alt="">
+        <h1>Algo no salió como esperábamos</h1>
+        <p >La página que busca no existe o ocurrió un problema inesperado. Intente de nuevo o vuelva al inicio.</p>
+        <a class="btn btn-primary" th:href="@{/inicio}">Volver al inicio</a>
+    </div>
+</main>
+</body>
+</html>

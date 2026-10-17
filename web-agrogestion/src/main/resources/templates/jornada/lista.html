@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Mis jornadas', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Mis jornadas</h1>
+            <p class="subtitulo-pagina">Registre las horas que trabajó cada día. Solo usted ve sus propios registros.</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-4">
+            <form class="tarjeta tarjeta-cuerpo" method="post" th:action="@{/jornadas}">
+                <h2 class="tarjeta-titulo"><i class="bi bi-plus-circle"></i>Registrar jornada</h2>
+                <div class="mb-3">
+                    <label class="form-label campo-requerido" for="fecha">Fecha</label>
+                    <input type="date" class="form-control" id="fecha" name="fecha" required th:value="${form['fecha']}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label campo-requerido" for="horas">Horas trabajadas</label>
+                    <input type="number" class="form-control" id="horas" name="horas" min="0.5" max="12" step="0.5" required th:value="${form['horas']}">
+                    <div class="form-text">Mayor que 0 y máximo 12 horas.</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label campo-requerido" for="labor">Labor realizada</label>
+                    <input class="form-control" id="labor" name="labor" list="labores" required placeholder="Ej.: Riego" th:value="${form['labor']}">
+                    <datalist id="labores">
+                        <option value="Siembra"></option><option value="Riego"></option><option value="Fertilización"></option><option value="Control de plagas"></option>
+                        <option value="Deshierbe"></option><option value="Tutorado"></option><option value="Cosecha"></option><option value="Empaque"></option>
+                    </datalist>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="cosechaId">Cosecha relacionada (opcional)</label>
+                    <select class="form-select" id="cosechaId" name="cosechaId">
+                        <option value="">Ninguna</option>
+                        <option th:each="c : ${labores}" th:value="${c.id}" th:text="${etiquetas[c.id]}" th:selected="${c.id == form['cosechaId']}">Cosecha</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="observaciones">Observaciones</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="2" maxlength="300" th:text="${form['observaciones']}"></textarea>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Guardar jornada</button>
+            </form>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="row g-3 mb-3">
+                <div class="col-6"><div class="kpi"><span class="etiqueta"><i class="bi bi-clock-history"></i>Horas registradas</span><span class="valor" th:text="${#numbers.formatDecimal(totalHoras, 1, 'POINT', 1, 'COMMA')}">0</span></div></div>
+                <div class="col-6"><div class="kpi"><span class="etiqueta"><i class="bi bi-calendar3"></i>Promedio por jornada</span><span class="valor" th:text="${#numbers.formatDecimal(promedio, 1, 'POINT', 1, 'COMMA')}">0</span></div></div>
+            </div>
+            <div class="tarjeta">
+                <th:block th:if="${#lists.isEmpty(jornadas)}"><div th:replace="~{fragments/componentes :: vacio('Aún no hay jornadas', 'Registre su primera jornada con el formulario.')}"></div></th:block>
+                <div class="tabla-responsive" th:unless="${#lists.isEmpty(jornadas)}">
+                    <table class="tabla">
+                        <thead><tr><th>Fecha</th><th>Labor</th><th>Cosecha</th><th class="num">Horas</th></tr></thead>
+                        <tbody>
+                        <tr th:each="j : ${jornadas}">
+                            <td th:text="${j.fecha}">fecha</td>
+                            <td class="nombre-celda"><strong th:text="${j.labor}">Labor</strong><small th:if="${j.observaciones != null}" th:text="${j.observaciones}"></small></td>
+                            <td th:text="${j.cosechaId != null} ? ${etiquetas[j.cosechaId] ?: 'Cosecha'} : '-'">-</td>
+                            <td class="num fw-semibold" th:text="${#numbers.formatDecimal(j.horas, 1, 'POINT', 1, 'COMMA')}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

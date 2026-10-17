@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Brote">
+  <ellipse cx="80" cy="104" rx="58" ry="9" fill="#DCE4D6"/>
+  <path d="M30 104c10-20 30-26 50-26s40 6 50 26z" fill="#8A6A4E"/>
+  <path d="M80 80V46" stroke="#3F8A55" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M80 58c-18 2-30-8-32-24 18-2 31 6 32 24z" fill="#4C8C5A"/>
+  <path d="M80 50c16 0 28-10 30-26-17-1-29 8-30 26z" fill="#6FAE74"/>
+  <circle cx="118" cy="86" r="7" fill="#E03C28"/><circle cx="116" cy="84" r="2" fill="#fff" opacity=".45"/>
+</svg>

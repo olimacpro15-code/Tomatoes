@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Tomatoes">
+  <defs>
+    <radialGradient id="t" cx="36%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#F26B55"/><stop offset="1" stop-color="#C92F1E"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="32" cy="38" rx="25" ry="22" fill="url(#t)"/>
+  <path d="M32 19c-3 3.600-9.500 4.500-14 2.200 3.200 5.600 8.800 7 14 6 5.200 1 10.800-.4 14-6-4.500 2.300-11 1.400-14-2.200z" fill="#3F8A55"/>
+  <path d="M32 19c-.2-5 1-9 5-11.500" fill="none" stroke="#3F8A55" stroke-width="3.200" stroke-linecap="round"/>
+  <ellipse cx="21.500" cy="32" rx="5" ry="2.800" fill="#fff" opacity=".28" transform="rotate(-32 21.500 32)"/>
+</svg>

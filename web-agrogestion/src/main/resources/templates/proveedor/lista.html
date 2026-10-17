@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Proveedores', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Proveedores</h1>
+            <p class="subtitulo-pagina">A quién se le compra cada insumo.</p>
+        </div>
+        <div class="acciones" sec:authorize="hasRole('BODEGA')">
+            <a class="btn btn-primary" th:href="@{/proveedores/nuevo}"><i class="bi bi-plus-lg me-1"></i>Nuevo proveedor</a>
+        </div>
+    </div>
+    <div class="tarjeta">
+        <th:block th:if="${#lists.isEmpty(proveedores)}"><div th:replace="~{fragments/componentes :: vacio('Sin proveedores', 'Registre los proveedores para asociarlos a los insumos.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(proveedores)}">
+            <table class="tabla">
+                <thead><tr><th>Proveedor</th><th>NIT</th><th>Teléfono</th><th>Correo</th><th sec:authorize="hasRole('BODEGA')"></th></tr></thead>
+                <tbody>
+                <tr th:each="p : ${proveedores}">
+                    <td class="fw-semibold" th:text="${p.nombre}">Proveedor</td>
+                    <td th:text="${p.nit}">NIT</td>
+                    <td th:text="${p.telefono ?: '-'}">-</td>
+                    <td th:text="${p.correo ?: '-'}">-</td>
+                    <td class="celda-acciones" sec:authorize="hasRole('BODEGA')">
+                        <a class="btn btn-outline-secondary btn-sm btn-icono" th:href="@{/proveedores/{id}/editar(id=${p.id})}" title="Editar" aria-label="Editar"><i class="bi bi-pencil"></i></a>
+                        <form th:action="@{/proveedores/{id}/eliminar(id=${p.id})}" method="post" data-confirmar="¿Eliminar este proveedor? No se puede si tiene insumos asociados.">
+                            <button class="btn btn-outline-danger btn-sm btn-icono" title="Eliminar" aria-label="Eliminar"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

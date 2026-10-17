@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout(titulo, contenido)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' | Tomatoes'">Tomatoes</title>
+    <th:block th:replace="~{fragments/componentes :: recursos}"></th:block>
+</head>
+<body class="app">
+
+<div class="sidebar-fondo" id="sidebarFondo"></div>
+
+<aside class="sidebar" id="sidebar">
+    <a class="marca" th:href="@{/inicio}">
+        <img th:src="@{/img/logo.svg}" alt=""><span>Tomatoes</span>
+    </a>
+
+    <nav aria-label="Menú principal">
+        <th:block th:replace="~{fragments/componentes :: item('/inicio','house-door','Inicio')}"></th:block>
+
+        <th:block sec:authorize="hasAnyRole('GERENTE','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: item('/panel','speedometer2','Panel de indicadores')}"></th:block>
+        </th:block>
+
+        <th:block sec:authorize="hasRole('OPERARIO')">
+            <div class="nav-grupo">Mi trabajo</div>
+            <th:block th:replace="~{fragments/componentes :: item('/mis-labores','clipboard-check','Mis labores')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: item('/jornadas','clock-history','Mis jornadas')}"></th:block>
+        </th:block>
+
+        <th:block sec:authorize="hasAnyRole('SUPERVISOR','ADMINISTRADOR')">
+            <div class="nav-grupo">Campo</div>
+            <th:block th:replace="~{fragments/componentes :: item('/lotes','grid-3x3-gap','Lotes')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: item('/cosechas','flower2','Cosechas')}"></th:block>
+        </th:block>
+
+        <th:block sec:authorize="hasAnyRole('BODEGA','SUPERVISOR','ADMINISTRADOR')">
+            <div class="nav-grupo">Bodega</div>
+            <th:block th:replace="~{fragments/componentes :: item('/insumos','box-seam','Insumos')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('BODEGA','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: item('/insumos/stock-bajo','exclamation-triangle','Stock bajo')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: item('/proveedores','truck','Proveedores')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: item('/movimientos','arrow-left-right','Movimientos')}"></th:block>
+        </th:block>
+
+        <th:block sec:authorize="hasAnyRole('SUPERVISOR','ADMINISTRADOR')">
+            <div class="nav-grupo">Personal</div>
+            <th:block th:replace="~{fragments/componentes :: item('/empleados','people','Empleados')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasRole('ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: item('/roles','shield-check','Roles y permisos')}"></th:block>
+        </th:block>
+
+        <th:block sec:authorize="hasAnyRole('GERENTE','SUPERVISOR','ADMINISTRADOR')">
+            <div class="nav-grupo">Reportes</div>
+            <th:block th:replace="~{fragments/componentes :: item('/reportes/produccion','bar-chart','Producción por lote')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('GERENTE','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: item('/reportes/jornadas','hourglass-split','Horas por empleado')}"></th:block>
+        </th:block>
+    </nav>
+
+    <div class="sidebar-pie" th:if="${usuario != null}">
+        <div class="sidebar-campo" role="img" aria-label="Campo de tomates"></div>
+        <div class="usuario-caja">
+            <div class="avatar" th:text="${#strings.toUpperCase(#strings.substring(usuario.nombre, 0, 1))}">T</div>
+            <div class="text-truncate">
+                <strong class="text-truncate" th:text="${usuario.nombre}">Nombre</strong>
+                <small th:text="#{${'rol.' + usuario.rol}}">Rol</small>
+            </div>
+            <form th:action="@{/logout}" method="post" class="ms-auto">
+                <button class="btn-salir" type="submit" title="Cerrar sesión" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-right"></i></button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<div class="contenido">
+    <header class="topbar-movil d-lg-none">
+        <button type="button" data-menu aria-label="Abrir menú"><i class="bi bi-list"></i></button>
+        <img th:src="@{/img/logo.svg}" alt=""><strong>Tomatoes</strong>
+    </header>
+
+    <main class="pagina">
+        <th:block th:replace="~{fragments/componentes :: alertas}"></th:block>
+        <th:block th:replace="${contenido}"></th:block>
+    </main>
+
+    <footer class="pie">Tomatoes, plataforma de gestión de insumos, cosechas y empleados. Proyecto integrador de Desarrollo de Aplicaciones Empresariales.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/tomatoes.js}"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Lotes', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Lotes de cultivo</h1>
+            <p class="subtitulo-pagina">
+                <span th:text="${#numbers.formatDecimal(totalHectareas, 1, 'POINT', 2, 'COMMA')}">0</span> hectáreas activas en total.
+            </p>
+        </div>
+        <div class="acciones" sec:authorize="hasRole('SUPERVISOR')">
+            <a class="btn btn-primary" th:href="@{/lotes/nuevo}"><i class="bi bi-plus-lg me-1"></i>Nuevo lote</a>
+        </div>
+    </div>
+
+    <div class="tarjeta">
+        <div class="tarjeta-cabecera no-imprimir">
+            <form method="get" th:action="@{/lotes}">
+                <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Filtrar por estado">
+                    <option value="" th:selected="${estadoSel == ''}">Todos los estados</option>
+                    <option value="ACTIVO" th:selected="${estadoSel == 'ACTIVO'}">Solo activos</option>
+                    <option value="INACTIVO" th:selected="${estadoSel == 'INACTIVO'}">Solo inactivos</option>
+                </select>
+            </form>
+            <input type="search" class="form-control form-control-sm" style="max-width: 260px" placeholder="Buscar lote o cultivo" data-filtro="#tablaLotes">
+        </div>
+        <th:block th:if="${#lists.isEmpty(lotes)}"><div th:replace="~{fragments/componentes :: vacio('Aún no hay lotes', 'Cree el primer lote para poder planear cosechas.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(lotes)}">
+            <table class="tabla" id="tablaLotes">
+                <thead><tr><th>Lote</th><th>Cultivo</th><th>Ubicación</th><th class="num">Área (ha)</th><th>Estado</th><th sec:authorize="hasRole('SUPERVISOR')"></th></tr></thead>
+                <tbody>
+                <tr th:each="l : ${lotes}" th:classappend="${l.estado == 'INACTIVO'} ? 'fila-inactiva'">
+                    <td class="fw-semibold" th:text="${l.nombre}">Lote</td>
+                    <td th:text="${l.cultivo}">Cultivo</td>
+                    <td th:text="${l.ubicacion}">Ubicación</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(l.areaHectareas, 1, 'POINT', 2, 'COMMA')}">0</td>
+                    <td><span th:replace="~{fragments/componentes :: estado(${l.estado})}"></span></td>
+                    <td class="celda-acciones" sec:authorize="hasRole('SUPERVISOR')">
+                        <a class="btn btn-outline-secondary btn-sm btn-icono" th:href="@{/lotes/{id}/editar(id=${l.id})}" title="Editar" aria-label="Editar"><i class="bi bi-pencil"></i></a>
+                        <form th:if="${l.estado == 'ACTIVO'}" th:action="@{/lotes/{id}/desactivar(id=${l.id})}" method="post" data-confirmar="¿Desactivar este lote? No se puede si tiene cosechas planeadas o en curso.">
+                            <button class="btn btn-outline-danger btn-sm btn-icono" title="Desactivar" aria-label="Desactivar"><i class="bi bi-slash-circle"></i></button>
+                        </form>
+                        <form th:unless="${l.estado == 'ACTIVO'}" th:action="@{/lotes/{id}/activar(id=${l.id})}" method="post">
+                            <button class="btn btn-outline-secondary btn-sm btn-icono" title="Reactivar" aria-label="Reactivar"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

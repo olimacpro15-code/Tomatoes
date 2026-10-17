@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Stock bajo', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Stock bajo</h1>
+            <p class="subtitulo-pagina">Insumos activos con existencias iguales o inferiores al mínimo definido. Es lo que hay que comprar.</p>
+        </div>
+        <div class="acciones no-imprimir"><button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir lista</button></div>
+    </div>
+
+    <div class="tarjeta">
+        <th:block th:if="${#lists.isEmpty(insumos)}"><div th:replace="~{fragments/componentes :: vacio('Bodega al día', 'Ningún insumo está en su stock mínimo.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(insumos)}">
+            <table class="tabla">
+                <thead><tr><th>Insumo</th><th>Proveedor</th><th class="num">Stock actual</th><th class="num">Mínimo</th><th class="num">Faltante</th><th sec:authorize="hasRole('BODEGA')" class="no-imprimir"></th></tr></thead>
+                <tbody>
+                <tr class="fila-alerta" th:each="i : ${insumos}">
+                    <td class="nombre-celda"><strong th:text="${i.nombre}">Insumo</strong><small th:text="#{${'categoria.' + i.categoria}}">Categoría</small></td>
+                    <td th:text="${i.proveedorId != null} ? ${proveedores[i.proveedorId] ?: '-'} : '-'">-</td>
+                    <td class="num fw-semibold text-danger" th:text="${#numbers.formatDecimal(i.stockActual, 1, 'POINT', 2, 'COMMA') + ' ' + i.unidadMedida}">0</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(i.stockMinimo, 1, 'POINT', 2, 'COMMA')}">0</td>
+                    <td class="num" th:text="${#numbers.formatDecimal(i.stockMinimo - i.stockActual, 1, 'POINT', 2, 'COMMA')}">0</td>
+                    <td class="celda-acciones no-imprimir" sec:authorize="hasRole('BODEGA')">
+                        <a class="btn btn-primary btn-sm" th:href="@{/movimientos/entrada(insumoId=${i.id})}">Registrar entrada</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

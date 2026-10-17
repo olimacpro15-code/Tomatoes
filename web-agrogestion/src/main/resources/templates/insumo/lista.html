@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Insumos', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Insumos</h1>
+            <p class="subtitulo-pagina">Inventario de la bodega. Las filas en rojo están en el stock mínimo o por debajo.</p>
+        </div>
+        <div class="acciones" sec:authorize="hasRole('BODEGA')">
+            <a class="btn btn-outline-secondary" th:href="@{/movimientos/salida}"><i class="bi bi-box-arrow-up me-1"></i>Registrar salida</a>
+            <a class="btn btn-outline-secondary" th:href="@{/movimientos/entrada}"><i class="bi bi-box-arrow-in-down me-1"></i>Registrar entrada</a>
+            <a class="btn btn-primary" th:href="@{/insumos/nuevo}"><i class="bi bi-plus-lg me-1"></i>Nuevo insumo</a>
+        </div>
+    </div>
+
+    <div class="tarjeta">
+        <div class="tarjeta-cabecera no-imprimir">
+            <form method="get" th:action="@{/insumos}">
+                <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Filtrar por estado">
+                    <option value="" th:selected="${estadoSel == ''}">Todos los estados</option>
+                    <option value="ACTIVO" th:selected="${estadoSel == 'ACTIVO'}">Solo activos</option>
+                    <option value="INACTIVO" th:selected="${estadoSel == 'INACTIVO'}">Solo inactivos</option>
+                </select>
+            </form>
+            <input type="search" class="form-control form-control-sm" style="max-width: 260px" placeholder="Buscar insumo o categoría" data-filtro="#tablaInsumos">
+        </div>
+        <th:block th:if="${#lists.isEmpty(insumos)}"><div th:replace="~{fragments/componentes :: vacio('Sin insumos', 'Registre el primer insumo de la bodega.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(insumos)}">
+            <table class="tabla" id="tablaInsumos">
+                <thead>
+                <tr>
+                    <th>Insumo</th><th>Proveedor</th><th class="num">Stock</th><th class="num">Mínimo</th><th class="num">Costo unitario</th><th>Estado</th>
+                    <th sec:authorize="hasRole('BODEGA')"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="i : ${insumos}" th:classappend="${i.estado == 'INACTIVO'} ? 'fila-inactiva' : (${i.stockActual <= i.stockMinimo} ? 'fila-alerta' : '')">
+                    <td class="nombre-celda"><strong th:text="${i.nombre}">Insumo</strong><small th:text="#{${'categoria.' + i.categoria}}">Categoría</small></td>
+                    <td th:text="${i.proveedorId != null} ? ${proveedores[i.proveedorId] ?: '-'} : '-'">-</td>
+                    <td class="num">
+                        <span class="fw-semibold" th:text="${#numbers.formatDecimal(i.stockActual, 1, 'POINT', 2, 'COMMA') + ' ' + i.unidadMedida}">0</span>
+                        <div class="stock-barra ms-auto" th:classappend="${i.stockActual <= i.stockMinimo} ? 'bajo'">
+                            <span th:style="'width:' + (${i.stockMinimo > 0} ? ${i.stockActual * 50 / i.stockMinimo} : 100) + '%'"></span>
+                        </div>
+                    </td>
+                    <td class="num" th:text="${#numbers.formatDecimal(i.stockMinimo, 1, 'POINT', 2, 'COMMA')}">0</td>
+                    <td class="num" th:text="${'$ ' + #numbers.formatDecimal(i.costoUnitario, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                    <td><span th:replace="~{fragments/componentes :: estado(${i.estado})}"></span></td>
+                    <td class="celda-acciones" sec:authorize="hasRole('BODEGA')">
+                        <a class="btn btn-outline-secondary btn-sm btn-icono" th:if="${i.estado == 'ACTIVO'}" th:href="@{/movimientos/entrada(insumoId=${i.id})}" title="Registrar entrada" aria-label="Registrar entrada"><i class="bi bi-box-arrow-in-down"></i></a>
+                        <a class="btn btn-outline-secondary btn-sm btn-icono" th:if="${i.estado == 'ACTIVO'}" th:href="@{/movimientos/salida(insumoId=${i.id})}" title="Registrar salida" aria-label="Registrar salida"><i class="bi bi-box-arrow-up"></i></a>
+                        <a class="btn btn-outline-secondary btn-sm btn-icono" th:href="@{/insumos/{id}/editar(id=${i.id})}" title="Editar" aria-label="Editar"><i class="bi bi-pencil"></i></a>
+                        <form th:if="${i.estado == 'ACTIVO'}" th:action="@{/insumos/{id}/desactivar(id=${i.id})}" method="post" data-confirmar="¿Desactivar este insumo? Se conserva su historial de movimientos.">
+                            <button class="btn btn-outline-danger btn-sm btn-icono" title="Desactivar" aria-label="Desactivar"><i class="bi bi-slash-circle"></i></button>
+                        </form>
+                        <form th:unless="${i.estado == 'ACTIVO'}" th:action="@{/insumos/{id}/activar(id=${i.id})}" method="post">
+                            <button class="btn btn-outline-secondary btn-sm btn-icono" title="Reactivar" aria-label="Reactivar"><i class="bi bi-arrow-counterclockwise"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

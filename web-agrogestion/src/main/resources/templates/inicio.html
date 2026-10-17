@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Inicio', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Hola, <span th:text="${#strings.arraySplit(usuario.nombre, ' ')[0]}">usuario</span></h1>
+            <p class="subtitulo-pagina"><span th:text="#{${'rol.' + usuario.rol}}">Rol</span>. Estos son los módulos disponibles para usted.</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <th:block sec:authorize="hasAnyRole('GERENTE','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/panel','speedometer2','Panel de indicadores','Stock bajo, cosechas en curso y empleados activos de un vistazo.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('GERENTE','SUPERVISOR','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/reportes/produccion','bar-chart','Producción por lote','Kilogramos cosechados, costo de insumos y rendimiento por hectárea.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('GERENTE','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/reportes/jornadas','hourglass-split','Horas por empleado','Total de horas laboradas en el periodo que elija.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasRole('OPERARIO')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/mis-labores','clipboard-check','Mis labores','Las cosechas en las que fue asignado y su estado actual.')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: modulo('/jornadas','clock-history','Mis jornadas','Registre las horas trabajadas y consulte su historial.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('SUPERVISOR','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/lotes','grid-3x3-gap','Lotes','Terrenos de cultivo con su área, ubicación y cultivo.')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: modulo('/cosechas','flower2','Cosechas','Ciclos de cosecha, producción, equipo asignado e insumos usados.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('BODEGA','SUPERVISOR','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/insumos','box-seam','Insumos','Inventario de semillas, fertilizantes, agroquímicos, herramientas y combustibles.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('BODEGA','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/insumos/stock-bajo','exclamation-triangle','Stock bajo','Insumos en el mínimo o por debajo: lo que hay que comprar.')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: modulo('/movimientos','arrow-left-right','Movimientos','Entradas, salidas e historial de inventario.')}"></th:block>
+            <th:block th:replace="~{fragments/componentes :: modulo('/proveedores','truck','Proveedores','A quién se le compra cada insumo.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasAnyRole('SUPERVISOR','ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/empleados','people','Empleados','Personal de la empresa y su información de contacto.')}"></th:block>
+        </th:block>
+        <th:block sec:authorize="hasRole('ADMINISTRADOR')">
+            <th:block th:replace="~{fragments/componentes :: modulo('/roles','shield-check','Roles y permisos','Defina qué puede hacer cada usuario en el sistema.')}"></th:block>
+        </th:block>
+    </div>
+</section>
+</body>
+</html>

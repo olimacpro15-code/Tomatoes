@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Cosechas', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Cosechas</h1>
+            <p class="subtitulo-pagina">Ciclos de cosecha por lote: planeados, en curso y finalizados.</p>
+        </div>
+        <div class="acciones" sec:authorize="hasRole('SUPERVISOR')">
+            <a class="btn btn-primary" th:href="@{/cosechas/nueva}"><i class="bi bi-plus-lg me-1"></i>Nueva cosecha</a>
+        </div>
+    </div>
+
+    <div class="tarjeta">
+        <div class="tarjeta-cabecera no-imprimir">
+            <form method="get" th:action="@{/cosechas}" class="d-flex gap-2 flex-wrap">
+                <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Estado">
+                    <option value="" th:selected="${estadoSel == ''}">Todos los estados</option>
+                    <option value="PLANEADA" th:selected="${estadoSel == 'PLANEADA'}">Planeadas</option>
+                    <option value="EN_CURSO" th:selected="${estadoSel == 'EN_CURSO'}">En curso</option>
+                    <option value="FINALIZADA" th:selected="${estadoSel == 'FINALIZADA'}">Finalizadas</option>
+                </select>
+                <select name="loteId" class="form-select form-select-sm" onchange="this.form.submit()" aria-label="Lote">
+                    <option value="" th:selected="${loteSel == ''}">Todos los lotes</option>
+                    <option th:each="l : ${lotes}" th:value="${l.id}" th:text="${l.nombre}" th:selected="${l.id == loteSel}">Lote</option>
+                </select>
+            </form>
+        </div>
+        <th:block th:if="${#lists.isEmpty(cosechas)}"><div th:replace="~{fragments/componentes :: vacio('No hay cosechas', 'Cree una cosecha asociada a un lote para empezar a registrar producción.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(cosechas)}">
+            <table class="tabla">
+                <thead><tr><th>Lote</th><th>Inicio</th><th>Fin</th><th>Estado</th><th class="num">Producción (kg)</th><th>Calidad</th><th class="num">Equipo</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${cosechas}">
+                    <td class="fw-semibold" th:text="${nombresLotes[c.loteId] ?: 'Lote'}">Lote</td>
+                    <td th:text="${c.fechaInicio}">inicio</td>
+                    <td th:text="${c.fechaFin ?: '-'}">fin</td>
+                    <td><span th:replace="~{fragments/componentes :: estado(${c.estado})}"></span></td>
+                    <td class="num" th:text="${c.cantidadKg != null} ? ${#numbers.formatDecimal(c.cantidadKg, 1, 'POINT', 1, 'COMMA')} : '-'">-</td>
+                    <td th:text="${c.calidad != null} ? #{${'calidad.' + c.calidad}} : '-'">-</td>
+                    <td class="num" th:text="${#lists.size(c.empleadosIds)}">0</td>
+                    <td class="celda-acciones"><a class="btn btn-outline-secondary btn-sm" th:href="@{/cosechas/{id}(id=${c.id})}">Abrir</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

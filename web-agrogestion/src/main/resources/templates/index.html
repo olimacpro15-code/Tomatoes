@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tomatoes | Gestión de insumos, cosechas y empleados</title>
+    <th:block th:replace="~{fragments/componentes :: recursos}"></th:block>
+</head>
+<body>
+<header class="portada">
+    <div class="portada-nav">
+        <a class="marca" th:href="@{/}"><img th:src="@{/img/logo.svg}" alt=""><span>Tomatoes</span></a>
+        <a sec:authorize="isAuthenticated()" class="btn btn-outline-secondary bg-white" th:href="@{/inicio}">Ir al sistema</a>
+        <a sec:authorize="!isAuthenticated()" class="btn btn-primary" th:href="@{/login}">Ingresar</a>
+    </div>
+    <div class="portada-texto">
+        <h1>Del insumo a la cosecha, en un solo lugar.</h1>
+        <p>Tomatoes reúne la bodega, el campo y el personal de su empresa agroindustrial para que cada persona vea y haga solo lo que le corresponde.</p>
+        <a sec:authorize="!isAuthenticated()" class="btn btn-primary btn-grande" th:href="@{/login}">Ingresar al sistema</a>
+        <a sec:authorize="isAuthenticated()" class="btn btn-primary btn-grande" th:href="@{/inicio}">Continuar trabajando</a>
+    </div>
+</header>
+
+<section class="pilares">
+    <div class="row g-4">
+        <div class="col-md-4 pilar">
+            <div class="icono"><i class="bi bi-box-seam"></i></div>
+            <h3>Insumos siempre al día</h3>
+            <p>Entradas, salidas y alertas de stock mínimo para comprar a tiempo y no quedarse sin semillas, fertilizantes ni combustible.</p>
+        </div>
+        <div class="col-md-4 pilar">
+            <div class="icono"><i class="bi bi-flower2"></i></div>
+            <h3>Cosechas con trazabilidad</h3>
+            <p>Cada cosecha queda ligada a su lote, a las personas asignadas y a los insumos que consumió, para medir costos y productividad.</p>
+        </div>
+        <div class="col-md-4 pilar">
+            <div class="icono"><i class="bi bi-people"></i></div>
+            <h3>Personal y jornadas</h3>
+            <p>Empleados, roles y horas trabajadas en un registro ordenado, con acceso diferenciado según el cargo de cada usuario.</p>
+        </div>
+    </div>
+</section>
+
+<div class="franja-roles">
+    <strong>Un menú distinto para cada rol</strong>
+    <span><i class="bi bi-shield-check"></i>Administrador</span>
+    <span><i class="bi bi-speedometer2"></i>Gerente</span>
+    <span><i class="bi bi-flower2"></i>Supervisor de cosechas</span>
+    <span><i class="bi bi-box-seam"></i>Encargado de bodega</span>
+    <span><i class="bi bi-clipboard-check"></i>Operario</span>
+</div>
+<footer class="pie">Tomatoes, proyecto integrador de Desarrollo de Aplicaciones Empresariales.</footer>
+</body>
+</html>

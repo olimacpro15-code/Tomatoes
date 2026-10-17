@@ -1,0 +1,62 @@
+# Blueprint de Render: crea los cuatro servicios web a partir de este repositorio.
+# Las variables marcadas con sync:false se piden al crear el blueprint (no se guardan en el repositorio).
+services:
+  - type: web
+    name: tomatoes-ms-empleados
+    runtime: docker
+    plan: free
+    dockerfilePath: ./ms-empleados/Dockerfile
+    dockerContext: ./ms-empleados
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: tomatoes-ms-insumos
+    runtime: docker
+    plan: free
+    dockerfilePath: ./ms-insumos/Dockerfile
+    dockerContext: ./ms-insumos
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: tomatoes-ms-cosechas
+    runtime: docker
+    plan: free
+    dockerfilePath: ./ms-cosechas/Dockerfile
+    dockerContext: ./ms-cosechas
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MS_EMPLEADOS_URL
+        sync: false
+      - key: MS_INSUMOS_URL
+        sync: false
+
+  - type: web
+    name: tomatoes-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./web-agrogestion/Dockerfile
+    dockerContext: ./web-agrogestion
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: MS_EMPLEADOS_URL
+        sync: false
+      - key: MS_INSUMOS_URL
+        sync: false
+      - key: MS_COSECHAS_URL
+        sync: false
+      - key: MOSTRAR_DEMO
+        value: "true"

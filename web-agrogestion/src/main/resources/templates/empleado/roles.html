@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Roles y permisos', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Roles y permisos</h1>
+            <p class="subtitulo-pagina">Cada usuario tiene un único rol. El menú y las rutas cambian según el rol asignado.</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-xl-8">
+            <div class="tarjeta">
+                <div class="tabla-responsive">
+                    <table class="tabla">
+                        <thead><tr><th>Empleado</th><th>Estado</th><th>Rol actual</th><th>Cambiar a</th></tr></thead>
+                        <tbody>
+                        <tr th:each="e : ${empleados}" th:classappend="${e.estado == 'INACTIVO'} ? 'fila-inactiva'">
+                            <td class="nombre-celda"><strong th:text="${e.nombres + ' ' + e.apellidos}">Nombre</strong><small th:text="${e.correo}">correo</small></td>
+                            <td><span th:replace="~{fragments/componentes :: estado(${e.estado})}"></span></td>
+                            <td><span th:replace="~{fragments/componentes :: rol(${e.rol})}"></span></td>
+                            <td>
+                                <form th:action="@{/roles/{id}(id=${e.id})}" method="post" class="d-flex gap-2">
+                                    <select name="rol" class="form-select form-select-sm" aria-label="Nuevo rol">
+                                        <option th:each="r : ${roles}" th:value="${r}" th:text="#{${'rol.' + r}}" th:selected="${r == e.rol}">Rol</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">Guardar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="tarjeta tarjeta-cuerpo">
+                <h2 class="tarjeta-titulo"><i class="bi bi-info-circle"></i>Qué puede hacer cada rol</h2>
+                <div class="dato-par"><span>Administrador</span><span>Empleados, roles y consulta general</span></div>
+                <div class="dato-par"><span>Gerente</span><span>Panel y reportes (solo lectura)</span></div>
+                <div class="dato-par"><span>Supervisor</span><span>Lotes, cosechas, consulta de insumos y empleados</span></div>
+                <div class="dato-par"><span>Bodega</span><span>Insumos, proveedores y movimientos</span></div>
+                <div class="dato-par"><span>Operario</span><span>Sus labores y sus jornadas</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

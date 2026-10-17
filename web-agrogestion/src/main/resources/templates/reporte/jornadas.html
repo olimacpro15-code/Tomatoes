@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Horas por empleado', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Horas por empleado</h1>
+            <p class="subtitulo-pagina">Total de horas laboradas por cada empleado en el periodo seleccionado.</p>
+        </div>
+        <div class="acciones no-imprimir"><button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button></div>
+    </div>
+
+    <form class="tarjeta tarjeta-cuerpo mb-3 no-imprimir" method="get" th:action="@{/reportes/jornadas}">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4"><label class="form-label" for="desde">Desde</label><input type="date" class="form-control" id="desde" name="desde" th:value="${desde}"></div>
+            <div class="col-md-4"><label class="form-label" for="hasta">Hasta</label><input type="date" class="form-control" id="hasta" name="hasta" th:value="${hasta}"></div>
+            <div class="col-md-4"><button class="btn btn-success w-100" type="submit"><i class="bi bi-funnel me-1"></i>Generar reporte</button></div>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-4"><div class="kpi destacado"><span class="etiqueta">Horas totales</span><span class="valor" th:text="${#numbers.formatDecimal(totalHoras, 1, 'POINT', 1, 'COMMA')}">0</span></div></div>
+        <div class="col-md-4"><div class="kpi"><span class="etiqueta">Empleados con jornadas</span><span class="valor" th:text="${#lists.size(filas)}">0</span></div></div>
+    </div>
+
+    <div class="tarjeta">
+        <th:block th:if="${#lists.isEmpty(filas)}"><div th:replace="~{fragments/componentes :: vacio('Sin jornadas en el periodo', 'Los operarios registran sus jornadas en el módulo Mis jornadas.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(filas)}">
+            <table class="tabla">
+                <thead><tr><th>Empleado</th><th class="num">Jornadas</th><th class="num">Horas</th><th style="width: 35%">Dedicación</th></tr></thead>
+                <tbody>
+                <tr th:each="f : ${filas}">
+                    <td class="fw-semibold" th:text="${f.empleado}">Empleado</td>
+                    <td class="num" th:text="${f.jornadas}">0</td>
+                    <td class="num fw-semibold" th:text="${#numbers.formatDecimal(f.totalHoras, 1, 'POINT', 1, 'COMMA')}">0</td>
+                    <td><div class="barra sol"><span th:style="'width:' + ${f.pct} + '%'"></span></div></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

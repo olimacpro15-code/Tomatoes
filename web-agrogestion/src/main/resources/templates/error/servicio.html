@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>No pudimos completar la operación | Tomatoes</title>
+    <th:block th:replace="~{fragments/componentes :: recursos}"></th:block>
+</head>
+<body>
+<main class="error-pagina">
+    <div>
+        <img th:src="@{/img/brote.svg}" alt="">
+        <h1>No pudimos completar la operación</h1>
+        <p th:text="${mensaje ?: 'El servicio no está disponible en este momento. Intente de nuevo en unos segundos.'}">Mensaje</p>
+        <a class="btn btn-primary" th:href="@{/inicio}">Volver al inicio</a>
+    </div>
+</main>
+</body>
+</html>

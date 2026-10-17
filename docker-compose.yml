@@ -1,0 +1,46 @@
+# Levanta los cuatro servicios en local con Docker:  docker compose up --build
+# Requiere el archivo .env de la raiz (MONGODB_URI y JWT_SECRET).
+services:
+  ms-empleados:
+    build: ./ms-empleados
+    env_file: .env
+    environment:
+      PORT: "8081"
+    ports:
+      - "8081:8081"
+
+  ms-insumos:
+    build: ./ms-insumos
+    env_file: .env
+    environment:
+      PORT: "8082"
+    ports:
+      - "8082:8082"
+
+  ms-cosechas:
+    build: ./ms-cosechas
+    env_file: .env
+    environment:
+      PORT: "8083"
+      MS_EMPLEADOS_URL: http://ms-empleados:8081
+      MS_INSUMOS_URL: http://ms-insumos:8082
+    ports:
+      - "8083:8083"
+    depends_on:
+      - ms-empleados
+      - ms-insumos
+
+  web-agrogestion:
+    build: ./web-agrogestion
+    env_file: .env
+    environment:
+      PORT: "8080"
+      MS_EMPLEADOS_URL: http://ms-empleados:8081
+      MS_INSUMOS_URL: http://ms-insumos:8082
+      MS_COSECHAS_URL: http://ms-cosechas:8083
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ms-empleados
+      - ms-insumos
+      - ms-cosechas

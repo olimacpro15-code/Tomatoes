@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión | Tomatoes</title>
+    <th:block th:replace="~{fragments/componentes :: recursos}"></th:block>
+</head>
+<body class="login-pagina">
+<div class="login-lado" role="img" aria-label="Campo de tomates al amanecer">
+    <div class="lema">
+        <h2>Todo el ciclo del cultivo, bajo control.</h2>
+        <p>Insumos, cosechas y personal conectados en una sola plataforma.</p>
+    </div>
+</div>
+
+<main class="login-form">
+    <a class="marca" th:href="@{/}"><img th:src="@{/img/logo.svg}" alt=""><span>Tomatoes</span></a>
+    <div style="max-width: 400px; width: 100%;">
+        <h1>Iniciar sesión</h1>
+        <p class="text-muted mb-4">Ingrese con el correo y la contraseña que le asignó el administrador.</p>
+
+        <div th:if="${param.error}" class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-octagon-fill me-2"></i><span th:text="${errorLogin ?: 'Correo o contraseña incorrectos.'}">Error</span>
+        </div>
+        <div th:if="${param.salio}" class="alert alert-success" role="alert">Cerró sesión correctamente.</div>
+        <div th:if="${param.expirada}" class="alert alert-warning" role="alert">Su sesión expiró. Ingrese nuevamente.</div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label" for="correo">Correo electrónico</label>
+                <input type="email" class="form-control" id="correo" name="correo" autocomplete="username" required autofocus placeholder="nombre@empresa.com">
+            </div>
+            <div class="mb-4">
+                <label class="form-label" for="password">Contraseña</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>
+                    <button class="btn btn-outline-secondary" type="button" data-ver-clave="#password" aria-label="Mostrar u ocultar contraseña"><i class="bi bi-eye"></i></button>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-grande w-100" type="submit">Ingresar</button>
+        </form>
+
+        <div class="demo-cuentas" th:if="${mostrarDemo}">
+            <strong>Cuentas de demostración</strong>
+            <div class="mt-2">Administrador: <code>admin@tomatoes.com</code> / <code>Admin123*</code></div>
+            <div>Gerente: <code>gerente@tomatoes.com</code> / <code>Gerente123*</code></div>
+            <div>Supervisor: <code>supervisor@tomatoes.com</code> / <code>Supervisor123*</code></div>
+            <div>Bodega: <code>bodega@tomatoes.com</code> / <code>Bodega123*</code></div>
+            <div>Operario: <code>operario@tomatoes.com</code> / <code>Operario123*</code></div>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/tomatoes.js}"></script>
+</body>
+</html>

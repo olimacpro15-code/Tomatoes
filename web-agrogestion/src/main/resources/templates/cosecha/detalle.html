@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Cosecha', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina"><span th:text="${lote.nombre}">Lote</span></h1>
+            <p class="subtitulo-pagina">
+                <span th:text="${lote.cultivo}">Cultivo</span>, <span th:text="${#numbers.formatDecimal(lote.areaHectareas, 1, 'POINT', 2, 'COMMA')}">0</span> ha,
+                <span th:text="${lote.ubicacion}">ubicación</span>
+            </p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/cosechas}"><i class="bi bi-arrow-left me-1"></i>Volver a cosechas</a>
+    </div>
+
+    <!-- Fases de la cosecha -->
+    <div class="fases mb-3">
+        <div class="fase" th:classappend="${cosecha.estado == 'PLANEADA'} ? 'actual' : 'hecha'"><i class="bi bi-calendar-check"></i>Planeada</div>
+        <div class="fase" th:classappend="${cosecha.estado == 'EN_CURSO'} ? 'actual' : (${cosecha.estado == 'FINALIZADA'} ? 'hecha' : '')"><i class="bi bi-play-circle"></i>En curso</div>
+        <div class="fase" th:classappend="${cosecha.estado == 'FINALIZADA'} ? 'actual' : ''"><i class="bi bi-check2-circle"></i>Finalizada</div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Datos y producción -->
+        <div class="col-lg-5">
+            <div class="tarjeta tarjeta-cuerpo mb-3">
+                <h2 class="tarjeta-titulo"><i class="bi bi-basket"></i>Producción</h2>
+                <div class="dato-par"><span>Inicio</span><span th:text="${cosecha.fechaInicio}">fecha</span></div>
+                <div class="dato-par"><span>Fin</span><span th:text="${cosecha.fechaFin ?: '-'}">fecha</span></div>
+                <div class="dato-par"><span>Cantidad cosechada</span><span th:text="${cosecha.cantidadKg != null} ? ${#numbers.formatDecimal(cosecha.cantidadKg, 1, 'POINT', 1, 'COMMA') + ' kg'} : 'Sin registrar'">-</span></div>
+                <div class="dato-par"><span>Calidad</span><span th:text="${cosecha.calidad != null} ? #{${'calidad.' + cosecha.calidad}} : 'Sin registrar'">-</span></div>
+                <div class="dato-par"><span>Costo de insumos</span><span th:text="${'$ ' + #numbers.formatDecimal(costoTotal, 1, 'POINT', 0, 'COMMA')}">$ 0</span></div>
+            </div>
+
+            <form class="tarjeta tarjeta-cuerpo" method="post" th:action="@{/cosechas/{id}/estado(id=${cosecha.id})}"
+                  th:if="${editable}" sec:authorize="hasRole('SUPERVISOR')">
+                <h2 class="tarjeta-titulo"><i class="bi bi-arrow-repeat"></i>Actualizar estado y producción</h2>
+                <div class="mb-3">
+                    <label class="form-label" for="estado">Estado</label>
+                    <select class="form-select" id="estado" name="estado" required>
+                        <option value="PLANEADA" th:selected="${cosecha.estado == 'PLANEADA'}" th:disabled="${cosecha.estado != 'PLANEADA'}">Planeada</option>
+                        <option value="EN_CURSO" th:selected="${cosecha.estado == 'EN_CURSO'}">En curso</option>
+                        <option value="FINALIZADA">Finalizada</option>
+                    </select>
+                    <div class="form-text">Los estados solo avanzan. Para finalizar se exige cantidad y calidad.</div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label" for="cantidadKg">Cantidad (kg)</label>
+                        <input type="number" class="form-control" id="cantidadKg" name="cantidadKg" min="0.1" step="0.1" th:value="${cosecha.cantidadKg}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="calidad">Calidad</label>
+                        <select class="form-select" id="calidad" name="calidad">
+                            <option value="">Sin definir</option>
+                            <option value="PRIMERA" th:selected="${cosecha.calidad == 'PRIMERA'}">Primera</option>
+                            <option value="SEGUNDA" th:selected="${cosecha.calidad == 'SEGUNDA'}">Segunda</option>
+                            <option value="TERCERA" th:selected="${cosecha.calidad == 'TERCERA'}">Tercera</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="fechaFin">Fecha de fin</label>
+                        <input type="date" class="form-control" id="fechaFin" name="fechaFin" th:value="${cosecha.fechaFin}">
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-3 w-100" type="submit">Guardar cambios</button>
+            </form>
+            <div class="alert alert-success mt-3" th:unless="${editable}"><i class="bi bi-lock me-2"></i>Cosecha finalizada: ya no admite cambios.</div>
+        </div>
+
+        <div class="col-lg-7">
+            <!-- Equipo -->
+            <div class="tarjeta tarjeta-cuerpo mb-3">
+                <h2 class="tarjeta-titulo"><i class="bi bi-people"></i>Equipo asignado</h2>
+                <p class="text-muted mb-0" th:if="${#lists.isEmpty(cosecha.empleadosIds)}">Todavía no hay empleados asignados.</p>
+                <div class="dato-par align-items-center" th:each="eid : ${cosecha.empleadosIds}">
+                    <span class="text-dark" th:text="${nombresEmpleados[eid] ?: eid}">Empleado</span>
+                    <form th:if="${editable}" sec:authorize="hasRole('SUPERVISOR')" method="post"
+                          th:action="@{/cosechas/{id}/empleados/{eid}/quitar(id=${cosecha.id}, eid=${eid})}" data-confirmar="¿Quitar este empleado de la cosecha?">
+                        <button class="btn btn-outline-danger btn-sm btn-icono" title="Quitar" aria-label="Quitar"><i class="bi bi-x-lg"></i></button>
+                    </form>
+                </div>
+
+                <form method="post" class="mt-3" th:action="@{/cosechas/{id}/empleados(id=${cosecha.id})}" th:if="${editable}" sec:authorize="hasRole('SUPERVISOR')">
+                    <label class="form-label">Asignar empleados activos</label>
+                    <p class="text-muted small mb-1" th:if="${#lists.isEmpty(disponibles)}">No hay más empleados activos para asignar.</p>
+                    <div class="lista-check mb-2" th:unless="${#lists.isEmpty(disponibles)}">
+                        <label th:each="e : ${disponibles}">
+                            <input class="form-check-input mt-0" type="checkbox" name="empleadosIds" th:value="${e.id}">
+                            <span th:text="${e.nombres + ' ' + e.apellidos}">Nombre</span>
+                            <span class="ms-auto"><span th:replace="~{fragments/componentes :: rol(${e.rol})}"></span></span>
+                        </label>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" type="submit" th:unless="${#lists.isEmpty(disponibles)}">Asignar seleccionados</button>
+                </form>
+            </div>
+
+            <!-- Insumos -->
+            <div class="tarjeta tarjeta-cuerpo">
+                <h2 class="tarjeta-titulo"><i class="bi bi-box-seam"></i>Insumos usados</h2>
+                <p class="text-muted" th:if="${#lists.isEmpty(cosecha.insumosUsados)}">Aún no se han registrado insumos para esta cosecha.</p>
+                <div class="tabla-responsive" th:unless="${#lists.isEmpty(cosecha.insumosUsados)}">
+                    <table class="tabla">
+                        <thead><tr><th>Insumo</th><th class="num">Cantidad</th><th class="num">Costo unitario</th><th class="num">Subtotal</th></tr></thead>
+                        <tbody>
+                        <tr th:each="u : ${cosecha.insumosUsados}">
+                            <td th:text="${u.insumoNombre}">Insumo</td>
+                            <td class="num" th:text="${#numbers.formatDecimal(u.cantidad, 1, 'POINT', 2, 'COMMA')}">0</td>
+                            <td class="num" th:text="${'$ ' + #numbers.formatDecimal(u.costoUnitario, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                            <td class="num fw-semibold" th:text="${'$ ' + #numbers.formatDecimal(u.cantidad * u.costoUnitario, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <form method="post" class="row g-2 align-items-end mt-2" th:action="@{/cosechas/{id}/insumos(id=${cosecha.id})}" th:if="${editable}" sec:authorize="hasRole('SUPERVISOR')">
+                    <div class="col-sm-7">
+                        <label class="form-label" for="insumoId">Registrar insumo (se descuenta de la bodega)</label>
+                        <select class="form-select" id="insumoId" name="insumoId" required>
+                            <option value="" disabled selected>Seleccione un insumo</option>
+                            <option th:each="i : ${insumos}" th:value="${i.id}"
+                                    th:text="${i.nombre + ' (disponible: ' + #numbers.formatDecimal(i.stockActual, 1, 'POINT', 2, 'COMMA') + ' ' + i.unidadMedida + ')'}">Insumo</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="form-label" for="cantidad">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="col-sm-2"><button class="btn btn-primary w-100" type="submit">Usar</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

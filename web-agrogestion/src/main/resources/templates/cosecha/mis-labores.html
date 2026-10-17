@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Mis labores', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Mis labores</h1>
+            <p class="subtitulo-pagina">Las cosechas en las que el supervisor lo asignó.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/jornadas}"><i class="bi bi-clock-history me-1"></i>Registrar mi jornada</a>
+    </div>
+
+    <th:block th:if="${#lists.isEmpty(labores)}">
+        <div class="tarjeta"><div th:replace="~{fragments/componentes :: vacio('No tiene labores asignadas', 'Cuando el supervisor lo asigne a una cosecha la verá aquí.')}"></div></div>
+    </th:block>
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4" th:each="c : ${labores}">
+            <div class="tarjeta tarjeta-cuerpo h-100">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h2 class="h5 mb-0" th:text="${lotes[c.loteId]?.nombre ?: 'Lote'}">Lote</h2>
+                    <span th:replace="~{fragments/componentes :: estado(${c.estado})}"></span>
+                </div>
+                <div class="dato-par"><span>Cultivo</span><span th:text="${lotes[c.loteId]?.cultivo ?: '-'}">-</span></div>
+                <div class="dato-par"><span>Ubicación</span><span th:text="${lotes[c.loteId]?.ubicacion ?: '-'}">-</span></div>
+                <div class="dato-par"><span>Inicio</span><span th:text="${c.fechaInicio}">fecha</span></div>
+                <div class="dato-par"><span>Compañeros asignados</span><span th:text="${#lists.size(c.empleadosIds)}">0</span></div>
+                <a class="btn btn-outline-secondary btn-sm mt-3" th:if="${c.estado != 'FINALIZADA'}" th:href="@{/jornadas(cosechaId=${c.id})}">Registrar jornada en esta cosecha</a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

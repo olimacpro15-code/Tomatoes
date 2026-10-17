@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Movimientos', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Historial de movimientos</h1>
+            <p class="subtitulo-pagina">Todas las entradas y salidas de inventario. Por defecto se muestran los últimos 30 días.</p>
+        </div>
+        <div class="acciones" sec:authorize="hasRole('BODEGA')">
+            <a class="btn btn-outline-secondary" th:href="@{/movimientos/salida}"><i class="bi bi-box-arrow-up me-1"></i>Registrar salida</a>
+            <a class="btn btn-primary" th:href="@{/movimientos/entrada}"><i class="bi bi-box-arrow-in-down me-1"></i>Registrar entrada</a>
+        </div>
+    </div>
+
+    <form class="tarjeta tarjeta-cuerpo mb-3 no-imprimir" method="get" th:action="@{/movimientos}">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label" for="insumoId">Insumo</label>
+                <select class="form-select" id="insumoId" name="insumoId">
+                    <option value="">Todos</option>
+                    <option th:each="i : ${insumos}" th:value="${i.id}" th:text="${i.nombre}" th:selected="${i.id == insumoSel}">Insumo</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="tipo">Tipo</label>
+                <select class="form-select" id="tipo" name="tipo">
+                    <option value="" th:selected="${tipoSel == ''}">Todos</option>
+                    <option value="ENTRADA" th:selected="${tipoSel == 'ENTRADA'}">Entradas</option>
+                    <option value="SALIDA" th:selected="${tipoSel == 'SALIDA'}">Salidas</option>
+                </select>
+            </div>
+            <div class="col-md-2"><label class="form-label" for="desde">Desde</label><input type="date" class="form-control" id="desde" name="desde" th:value="${desde}"></div>
+            <div class="col-md-2"><label class="form-label" for="hasta">Hasta</label><input type="date" class="form-control" id="hasta" name="hasta" th:value="${hasta}"></div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-success flex-grow-1" type="submit"><i class="bi bi-funnel me-1"></i>Filtrar</button>
+                <a class="btn btn-outline-secondary" th:href="@{/movimientos}">Limpiar</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="tarjeta">
+        <div class="tarjeta-cabecera"><span class="text-muted"><strong th:text="${#lists.size(movimientos)}">0</strong> movimientos encontrados</span></div>
+        <th:block th:if="${#lists.isEmpty(movimientos)}"><div th:replace="~{fragments/componentes :: vacio('Sin movimientos', 'No hay movimientos con estos filtros.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(movimientos)}">
+            <table class="tabla">
+                <thead><tr><th>Fecha</th><th>Insumo</th><th>Tipo</th><th class="num">Cantidad</th><th>Responsable</th><th>Detalle</th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${movimientos}">
+                    <td th:text="${#strings.replace(#strings.substring(m.fecha, 0, 16), 'T', ' ')}">fecha</td>
+                    <td class="fw-semibold" th:text="${nombres[m.insumoId] ?: 'Insumo'}">Insumo</td>
+                    <td><span th:replace="~{fragments/componentes :: estado(${m.tipo})}"></span></td>
+                    <td class="num" th:text="${#numbers.formatDecimal(m.cantidad, 1, 'POINT', 2, 'COMMA') + ' ' + (unidades[m.insumoId] ?: '')}">0</td>
+                    <td th:text="${m.usuarioNombre ?: '-'}">-</td>
+                    <td class="nombre-celda">
+                        <small th:if="${m.cosechaId != null}" th:text="${'Cosecha ' + #strings.substring(m.cosechaId, #strings.length(m.cosechaId) - 6)}"></small>
+                        <small th:text="${m.observacion ?: ''}"></small>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

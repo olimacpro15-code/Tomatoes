@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Producción por lote', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Producción por lote</h1>
+            <p class="subtitulo-pagina">Kilogramos cosechados, costo de insumos y rendimiento por hectárea. El rango usa la fecha de fin de la cosecha.</p>
+        </div>
+        <div class="acciones no-imprimir"><button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button></div>
+    </div>
+
+    <form class="tarjeta tarjeta-cuerpo mb-3 no-imprimir" method="get" th:action="@{/reportes/produccion}">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3"><label class="form-label" for="desde">Desde</label><input type="date" class="form-control" id="desde" name="desde" th:value="${desde}"></div>
+            <div class="col-md-3"><label class="form-label" for="hasta">Hasta</label><input type="date" class="form-control" id="hasta" name="hasta" th:value="${hasta}"></div>
+            <div class="col-md-3">
+                <label class="form-label" for="loteId">Lote</label>
+                <select class="form-select" id="loteId" name="loteId">
+                    <option value="" th:selected="${loteSel == ''}">Todos los lotes</option>
+                    <option th:each="l : ${lotes}" th:value="${l.id}" th:text="${l.nombre}" th:selected="${l.id == loteSel}">Lote</option>
+                </select>
+            </div>
+            <div class="col-md-3"><button class="btn btn-success w-100" type="submit"><i class="bi bi-funnel me-1"></i>Generar reporte</button></div>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-4"><div class="kpi destacado"><span class="etiqueta">Total cosechado</span><span class="valor" th:text="${#numbers.formatDecimal(totalKg, 1, 'POINT', 0, 'COMMA') + ' kg'}">0</span></div></div>
+        <div class="col-md-4"><div class="kpi"><span class="etiqueta">Cosechas con producción</span><span class="valor" th:text="${#numbers.formatDecimal(totalCosechas, 1, 'POINT', 0, 'COMMA')}">0</span></div></div>
+        <div class="col-md-4"><div class="kpi"><span class="etiqueta">Costo de insumos</span><span class="valor" th:text="${'$ ' + #numbers.formatDecimal(totalCosto, 1, 'POINT', 0, 'COMMA')}">$ 0</span></div></div>
+    </div>
+
+    <div class="tarjeta">
+        <th:block th:if="${#lists.isEmpty(filas)}"><div th:replace="~{fragments/componentes :: vacio('Sin producción en el periodo', 'Registre cantidades en las cosechas o amplíe el rango de fechas.')}"></div></th:block>
+        <div class="tabla-responsive" th:unless="${#lists.isEmpty(filas)}">
+            <table class="tabla">
+                <thead><tr><th>Lote</th><th>Cultivo</th><th class="num">Cosechas</th><th class="num">Total (kg)</th><th style="width: 22%">Participación</th><th class="num">Kg por ha</th><th class="num">Costo de insumos</th></tr></thead>
+                <tbody>
+                <tr th:each="f : ${filas}">
+                    <td class="fw-semibold" th:text="${f.lote}">Lote</td>
+                    <td th:text="${f.cultivo}">Cultivo</td>
+                    <td class="num" th:text="${f.cosechas}">0</td>
+                    <td class="num fw-semibold" th:text="${#numbers.formatDecimal(f.totalKg, 1, 'POINT', 1, 'COMMA')}">0</td>
+                    <td><div class="barra"><span th:style="'width:' + ${f.pct} + '%'"></span></div></td>
+                    <td class="num" th:text="${#numbers.formatDecimal(f.kgPorHectarea, 1, 'POINT', 1, 'COMMA')}">0</td>
+                    <td class="num" th:text="${'$ ' + #numbers.formatDecimal(f.costoInsumos, 1, 'POINT', 0, 'COMMA')}">$ 0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Panel de indicadores', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Panel de indicadores</h1>
+            <p class="subtitulo-pagina">Resumen de la operación: bodega, campo y personal.</p>
+        </div>
+        <div class="acciones no-imprimir"><button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="kpi" th:classappend="${totalStockBajo > 0} ? 'alerta'">
+                <span class="etiqueta"><i class="bi bi-exclamation-triangle"></i>Insumos con stock bajo</span>
+                <span class="valor" th:text="${totalStockBajo}">0</span>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="kpi">
+                <span class="etiqueta"><i class="bi bi-flower2"></i>Cosechas en curso</span>
+                <span class="valor" th:text="${totalEnCurso}">0</span>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="kpi">
+                <span class="etiqueta"><i class="bi bi-people"></i>Empleados activos</span>
+                <span class="valor" th:text="${totalEmpleados}">0</span>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="kpi destacado">
+                <span class="etiqueta"><i class="bi bi-basket"></i>Kg cosechados en 90 días</span>
+                <span class="valor" th:text="${#numbers.formatDecimal(totalKg, 1, 'POINT', 0, 'COMMA')}">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="tarjeta h-100">
+                <div class="tarjeta-cuerpo pb-2"><h2 class="tarjeta-titulo"><i class="bi bi-exclamation-triangle"></i>Insumos por reponer</h2></div>
+                <th:block th:if="${#lists.isEmpty(stockBajo)}"><div th:replace="~{fragments/componentes :: vacio('Bodega al día', 'Ningún insumo está en su stock mínimo.')}"></div></th:block>
+                <div class="tabla-responsive" th:unless="${#lists.isEmpty(stockBajo)}">
+                    <table class="tabla">
+                        <thead><tr><th>Insumo</th><th class="num">Stock</th><th class="num">Mínimo</th></tr></thead>
+                        <tbody>
+                        <tr th:each="i : ${stockBajo}">
+                            <td th:text="${i.nombre}">Insumo</td>
+                            <td class="num fw-semibold text-danger" th:text="${#numbers.formatDecimal(i.stockActual, 1, 'POINT', 2, 'COMMA') + ' ' + i.unidadMedida}">0</td>
+                            <td class="num" th:text="${#numbers.formatDecimal(i.stockMinimo, 1, 'POINT', 2, 'COMMA')}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="tarjeta h-100">
+                <div class="tarjeta-cuerpo pb-2"><h2 class="tarjeta-titulo"><i class="bi bi-flower2"></i>Cosechas en curso</h2></div>
+                <th:block th:if="${#lists.isEmpty(enCurso)}"><div th:replace="~{fragments/componentes :: vacio('Sin cosechas en curso', 'Cuando el supervisor inicie una cosecha aparecerá aquí.')}"></div></th:block>
+                <div class="tabla-responsive" th:unless="${#lists.isEmpty(enCurso)}">
+                    <table class="tabla">
+                        <thead><tr><th>Lote</th><th>Inicio</th><th class="num">Equipo</th></tr></thead>
+                        <tbody>
+                        <tr th:each="c : ${enCurso}">
+                            <td th:text="${c.loteNombre}">Lote</td>
+                            <td th:text="${c.fechaInicio}">2026-01-01</td>
+                            <td class="num" th:text="${#lists.size(c.empleadosIds)}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="tarjeta tarjeta-cuerpo">
+                <h2 class="tarjeta-titulo"><i class="bi bi-bar-chart"></i>Producción por lote en los últimos 90 días</h2>
+                <p th:if="${#lists.isEmpty(produccion)}" class="text-muted mb-0">Todavía no hay cosechas con producción registrada en este periodo.</p>
+                <div th:each="p : ${produccion}" class="d-flex align-items-center gap-3 py-2">
+                    <div style="width: 160px" class="text-truncate" th:text="${p.lote}">Lote</div>
+                    <div class="barra flex-grow-1"><span th:style="'width:' + ${p.pct} + '%'"></span></div>
+                    <div class="text-end fw-semibold" style="width: 110px" th:text="${#numbers.formatDecimal(p.totalKg, 1, 'POINT', 0, 'COMMA') + ' kg'}">0 kg</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

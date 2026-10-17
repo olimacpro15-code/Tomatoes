@@ -1,0 +1,19 @@
+# Compilados y herramientas
+target/
+*.class
+*.log
+HELP.md
+
+# IDE
+.settings/
+.classpath
+.project
+.factorypath
+.idea/
+*.iml
+.vscode/
+.sts4-cache/
+
+# Secretos: NUNCA se suben a GitHub
+.env
+application-local.properties

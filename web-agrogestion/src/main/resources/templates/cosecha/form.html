@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: layout('Nueva cosecha', ~{::section})}">
+<body>
+<section>
+    <div class="pagina-encabezado">
+        <div>
+            <h1 class="titulo-pagina">Nueva cosecha</h1>
+            <p class="subtitulo-pagina">Toda cosecha pertenece a un lote activo y empieza en estado «Planeada».</p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/cosechas}"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+    </div>
+    <form class="tarjeta tarjeta-cuerpo" method="post" th:action="@{/cosechas}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label campo-requerido" for="loteId">Lote</label>
+                <select class="form-select" id="loteId" name="loteId" required>
+                    <option value="" disabled th:selected="${cosecha['loteId'] == null}">Seleccione un lote</option>
+                    <option th:each="l : ${lotes}" th:value="${l.id}" th:text="${l.nombre + ' (' + l.cultivo + ')'}" th:selected="${l.id == cosecha['loteId']}">Lote</option>
+                </select>
+                <div class="form-text" th:if="${#lists.isEmpty(lotes)}">No hay lotes activos. Cree uno primero en el módulo Lotes.</div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label campo-requerido" for="fechaInicio">Fecha de inicio</label>
+                <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required th:value="${cosecha['fechaInicio']}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="fechaFin">Fecha de fin estimada</label>
+                <input type="date" class="form-control" id="fechaFin" name="fechaFin" th:value="${cosecha['fechaFin']}">
+            </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a class="btn btn-outline-secondary" th:href="@{/cosechas}">Cancelar</a>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Crear cosecha</button>
+        </div>
+    </form>
+</section>
+</body>
+</html>
