@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface JornadaRepository extends MongoRepository<Jornada, String> {
     List<Jornada> findByEmpleadoIdOrderByFechaDesc(String empleadoId);
-    List<Jornada> findByFechaGreaterThanEqualAndFechaLessThanEqual(LocalDate desde, LocalDate hasta);
+   
 }

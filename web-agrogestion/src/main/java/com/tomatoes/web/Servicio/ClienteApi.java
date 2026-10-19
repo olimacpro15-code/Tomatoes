@@ -128,7 +128,7 @@ public class ClienteApi {
             // se conserva el mensaje genérico
         }
         if (estado == 401 && haySesion()) return new SesionExpiradaException();
-        if (estado == 503) return new ServicioNoDisponibleException(mensaje);
+        if (estado == 502 || estado == 503 || estado == 504) return new ServicioNoDisponibleException("El servicio está suspendido o no responde. Espere un minuto y recargue.");
         return new ApiException(estado, mensaje, errores);
     }
 

@@ -43,12 +43,11 @@ public class JornadaService {
     }
 
     public List<Jornada> listar(String empleadoId, LocalDate desde, LocalDate hasta) {
-        List<Jornada> base = (desde != null || hasta != null)
-                ? repo.findByFechaGreaterThanEqualAndFechaLessThanEqual(desde != null ? desde : MINIMA, hasta != null ? hasta : MAXIMA)
-                : repo.findAll(Sort.by(Sort.Direction.DESC, "fecha"));
-        return base.stream()
+        return repo.findAll(Sort.by(Sort.Direction.DESC, "fecha")).stream()
+                .filter(j -> j.getFecha() != null)
                 .filter(j -> empleadoId == null || empleadoId.isBlank() || empleadoId.equals(j.getEmpleadoId()))
-                .sorted(Comparator.comparing(Jornada::getFecha).reversed())
+                .filter(j -> desde == null || !j.getFecha().isBefore(desde))
+                .filter(j -> hasta == null || !j.getFecha().isAfter(hasta))
                 .collect(Collectors.toList());
     }
 
